@@ -1,0 +1,108 @@
+server:
+  port: 80
+  servlet.context-path: /v1/
+
+spring:
+  application:
+    name: spring-client
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: ''
+    password: ''
+    image-path: static/codeMail.html
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            enable: true
+  security:
+      oauth2:
+        client:
+          registration:
+              kakao:
+                client-id:
+                client-secret:
+                authorization-grant-type: authorization_code
+                redirect-uri:
+                scope:
+                  - profile_nickname
+                  - profile_image
+                client-authentication-method: client_secret_post
+          provider:
+            kakao:
+              authorization-uri: https://kauth.kakao.com/oauth/authorize
+              token-uri: https://kauth.kakao.com/oauth/token
+              user-info-uri: https://kapi.kakao.com/v2/user/me
+              user-name-attribute: id
+
+  datasource:
+    url: addr
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username:
+    password: ""
+    hikari:
+      maximum-pool-size: 5
+      idle-timeout: 10000
+      connection-timeout: 10000
+      validation-timeout: 1000
+      max-lifetime: 1795000
+  ########################################################
+  #                   JPA                                #
+  ########################################################
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        storage_engine: innodb
+        show_sql: true
+        format_sql: true
+    show-sql: true
+
+pass:
+  client-prefix:
+  usage-code:
+  service-type:
+  ret-transfer-type :
+  key-file-path: static/dev_mok_keyInfo.dat
+  key-file-code:
+  target-uri: https://
+  redirect-uri: http://localhost/api/v1/client/pass/user
+
+jwt:
+  secretKey:
+  web:
+    access_token_expired_date: 3600000 #(ms) 60분 (60 * 60 * 1000)
+    refresh_token_expired_date: 86400000 #(ms) 1일
+  mobile:
+    access_token_expired_date: 3600000 # 60분
+    refresh_token_expired_date: 2629746000 # 1 month
+encode:
+  hash:
+    salt: ''
+    secret-key: ''
+    iv: ''
+    iteration :
+    width:
+
+logging:
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } - [%-40.40logger{39}][%3.6(%X{method}) %-6.-50(%X{uri})][%5.15(%X{ip})][%.20(%X{user-id})][%3.6(%X{req-method}) %-6.-50(%X{req-url})]:
+      %X{bar}%m%n%wEx'
+    file: ''
+  level:
+    root: info
+    org:
+      springframework:
+        security: TRACE
+
+

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-client-service
+  namespace: spring-dev
+  labels:
+    app: spring-client
+spec:
+  selector:
+    app: spring-client
+  ports:
+    - name: http
+      port: 80
+  type: ClusterIP

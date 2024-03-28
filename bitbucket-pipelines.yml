@@ -1,0 +1,77 @@
+image: gradle:7.6.2-jdk17
+
+pipelines:
+  branches:
+    # 마스터
+    master:
+      - step:
+          deployment: Production
+          name: Build -> ECR -> EKS
+          script:
+            # 그래들 퍼블리시
+            - gradle publish -Penv=prd
+            # 그래들 빌드
+            - gradle build -Penv=prd
+            # 도커 빌드
+            - docker build -t aws-ecr-name .
+            # 이미지 푸시
+            - pipe: atlassian/aws-ecr-push-image:1.6.2
+              variables:
+                AWS_ACCESS_KEY_ID: aws-key-id
+                AWS_SECRET_ACCESS_KEY: aws-secret
+                AWS_DEFAULT_REGION: aws-default-region
+                IMAGE_NAME: ecr-name
+                TAGS: spring-client
+            # 배포
+            - pipe: atlassian/aws-eks-kubectl-run:2.2.0
+              variables:
+                AWS_ACCESS_KEY_ID: aws-key-id
+                AWS_SECRET_ACCESS_KEY: aws-secret
+                AWS_DEFAULT_REGION: aws-default-region
+                CLUSTER_NAME: spring-prd
+                KUBECTL_COMMAND: apply -f k8s/deployment-prd.yaml -f k8s/service-prd.yaml
+            # 재기동
+            - pipe: atlassian/aws-eks-kubectl-run:2.2.0
+              variables:
+                AWS_ACCESS_KEY_ID: aws-key-id
+                AWS_SECRET_ACCESS_KEY: aws-secret
+                AWS_DEFAULT_REGION: aws-default-region
+                CLUSTER_NAME: spring-prd
+                KUBECTL_COMMAND: rollout restart deployment/spring-client -n spring-prd
+
+    # 개발
+    development:
+      - step:
+          deployment: Development
+          name: Build -> ECR -> EKS
+          script:
+            # 그래들 퍼블리시
+            - gradle publish -Penv=dev
+            # 그래들 빌드
+            - gradle build -Penv=dev
+            # 도커 빌드
+            - docker build -t spring-ecr-dev .
+            # 이미지 푸시
+            - pipe: atlassian/aws-ecr-push-image:1.6.2
+              variables:
+                AWS_ACCESS_KEY_ID: aws-key-id
+                AWS_SECRET_ACCESS_KEY: aws-secret
+                AWS_DEFAULT_REGION: aws-default-region
+                IMAGE_NAME: ecr-name
+                TAGS: spring-client
+            # 배포
+            - pipe: atlassian/aws-eks-kubectl-run:2.2.0
+              variables:
+                AWS_ACCESS_KEY_ID: aws-key-id
+                AWS_SECRET_ACCESS_KEY: aws-secret
+                AWS_DEFAULT_REGION: aws-default-region
+                CLUSTER_NAME: spring-dev
+                KUBECTL_COMMAND: apply -f k8s/deployment-dev.yaml -f k8s/service-dev.yaml
+            # 재기동
+            - pipe: atlassian/aws-eks-kubectl-run:2.2.0
+              variables:
+                AWS_ACCESS_KEY_ID: aws-key-id
+                AWS_SECRET_ACCESS_KEY: aws-secret
+                AWS_DEFAULT_REGION: aws-default-region
+                CLUSTER_NAME: spring-dev
+                KUBECTL_COMMAND: rollout restart deployment/spring-client -n spring-dev

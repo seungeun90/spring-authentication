@@ -1,0 +1,128 @@
+plugins {
+	id "org.springframework.boot" version "3.2.1"
+	id "io.spring.dependency-management" version "1.1.4"
+}
+
+repositories {
+	mavenCentral()
+}
+
+allprojects {
+	group = 'com.sample.spring.authentication'
+	version = '0.0.1-SNAPSHOT'
+}
+
+subprojects {
+	apply plugin: "java"
+	apply plugin: "java-library"
+	apply plugin: "maven-publish"
+	apply plugin: "org.springframework.boot"
+	apply plugin: "io.spring.dependency-management"
+
+	sourceCompatibility = '17'
+
+	configurations {
+		compileOnly {
+			extendsFrom annotationProcessor
+		}
+	}
+
+
+	repositories {
+		mavenCentral()
+	}
+
+	dependencies {
+
+		/* redis */
+		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+		implementation 'org.springframework.boot:spring-boot-starter'
+		implementation 'org.springframework.boot:spring-boot-starter-actuator'
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+		/* security */
+		implementation 'org.springframework.boot:spring-boot-starter-security'
+
+		/* oauth2 */
+		implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+
+		/* database */
+		runtimeOnly 'com.h2database:h2:1.4.200'
+		runtimeOnly 'com.mysql:mysql-connector-j'
+		implementation 'org.springframework:spring-jdbc'
+
+		/* jwt */
+		implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+		implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+		implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+		// com.sun.xml.bind
+		implementation 'com.sun.xml.bind:jaxb-impl:4.0.1'
+		implementation 'com.sun.xml.bind:jaxb-core:4.0.1'
+		// javax.xml.bind
+		implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
+
+		/* jpa */
+		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+		/* lombok */
+		compileOnly 'org.projectlombok:lombok:1.18.28'
+		testCompileOnly 'org.projectlombok:lombok:1.18.28'
+		annotationProcessor 'org.projectlombok:lombok:1.18.28'
+		testAnnotationProcessor 'org.projectlombok:lombok:1.18.28'
+
+	}
+}
+
+project(":client-boot") {
+	dependencies {
+		api project (":client-rest")
+	}
+}
+
+project(":client-rest") {
+	dependencies {
+		api project (":client-oauth2")
+		api project(":client-jwt")
+		api project(":client-email")
+		api project(":client-pass")
+		api project(":client-proxy")
+	}
+}
+
+project(":client-oauth2") {
+	dependencies {
+		api project(":client-jwt")
+		api project(":client-proxy")
+		api project(":client-aggregate")
+	}
+}
+
+project(":client-jwt") {
+	dependencies {
+		api project(":client-aggregate")
+		api project(":client-domain")
+	}
+}
+project(":client-email") {
+	dependencies {
+		api project (":client-aggregate")
+	}
+}
+project(":client-proxy") {
+	dependencies {
+		api project(":client-domain")
+	}
+}
+project(":client-aggregate") {
+	dependencies {
+		api project (":client-domain")
+	}
+}
+project(":client-pass") {
+	dependencies {
+		api project (":client-domain")
+	}
+}
